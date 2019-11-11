@@ -35,3 +35,5 @@ dependencies {
     compileOnly "androidx.room:room-runtime:$room_version"
     compileOnly "androidx.paging:paging-runtime:2.1.0"
 }
+
+apply from: "bintrayUpload.gradle"

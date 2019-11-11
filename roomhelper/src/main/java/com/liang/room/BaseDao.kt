@@ -25,4 +25,7 @@ interface BaseDao<T> {
     @Update
     fun update(data: List<T>)
 
+//    @Query("DELETE FROM *")
+//    fun clearTable()
+
 }
