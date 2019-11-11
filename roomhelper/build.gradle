@@ -12,8 +12,6 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
-        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildTypes {
@@ -23,13 +21,15 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compileOnly 'androidx.appcompat:appcompat:1.1.0'
-    compileOnly 'androidx.core:core-ktx:1.1.0'
     def room_version = "2.2.1"
     compileOnly "androidx.room:room-ktx:$room_version"
     compileOnly "androidx.room:room-runtime:$room_version"
