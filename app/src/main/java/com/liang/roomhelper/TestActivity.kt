@@ -2,9 +2,7 @@ package com.liang.roomhelper
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.liang.roomhelper.databinding.ActivityTestBinding
@@ -26,7 +24,7 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewDataBinding.recyclerView.layoutManager = LinearLayoutManager(this)
         viewDataBinding.recyclerView.adapter = adapter
-        viewModel.dataObserve.observe(this, Observer { adapter.submitList(it) })
+        viewModel.databaseObserve(this) { adapter.submitList(it) }
         databaseSet()
     }
 

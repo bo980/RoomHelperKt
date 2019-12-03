@@ -3,7 +3,6 @@ package com.liang.roomhelper
 import android.app.Application
 import android.util.Log
 import android.widget.Toast
-import androidx.paging.DataSource
 import androidx.room.RoomDatabase
 import com.liang.room.DatabaseViewModel
 import java.util.ArrayList
@@ -17,10 +16,6 @@ class UserViewModel(application: Application) :
 
     override fun getDao(): UserDao {
         return DataBaseManager.appDatabase.getUserDao()
-    }
-
-    override fun queryAll(): DataSource.Factory<Int, UserEntity> {
-        return bindAllData()
     }
 
     //数据库没有查询到数据

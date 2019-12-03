@@ -3,32 +3,19 @@ package com.liang.room
 import android.app.Application
 import androidx.annotation.MainThread
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.room.RoomDatabase
 
-abstract class DatabaseViewModel<Entity, DAO : BaseDao<Entity>> : AndroidViewModel,
-    BaseDao<Entity> {
+abstract class DatabaseViewModel<Entity, DAO : BaseDao<Entity>>(application: Application) :
+    AndroidViewModel(application) {
 
     private val dao: DAO
-    val dataObserve: LiveData<PagedList<Entity>>
-    private val dataSource: DataSource<Int, Entity>
-
-    constructor(application: Application) : super(application) {
-        dao = getDao()
-        val config = PagedList.Config.Builder()
-            .setPageSize(setPageSize())
-            .setPrefetchDistance(setPrefetchDistance())
-            .setInitialLoadSizeHint(setInitialLoadSizeHint())
-            .setEnablePlaceholders(setEnablePlaceholders())
-        dataSource = bindAllData().create()
-        this.dataObserve = LivePagedListBuilder(
-            bindAllData(), config.build()
-        ).setBoundaryCallback(dataBoundaryCallback)
-            .build()
-    }
+    private val dataObserve: LiveData<PagedList<Entity>>
 
     protected abstract fun getRoomDatabase(): RoomDatabase
 
@@ -86,41 +73,41 @@ abstract class DatabaseViewModel<Entity, DAO : BaseDao<Entity>> : AndroidViewMod
     protected open fun onItemAtEndLoaded(itemAtEnd: Entity) {}
 
 
-    fun bindAllData(): DataSource.Factory<Int, Entity> {
+    open fun queryData(): DataSource.Factory<Int, Entity> {
         return dao.queryAll()
     }
 
-    override fun insert(data: Entity) {
+    fun insert(data: Entity) {
         getRoomDatabase().runInTransaction {
             dao.insert(data)
         }
     }
 
-    override fun insert(data: List<Entity>) {
+    fun insert(data: List<Entity>) {
         getRoomDatabase().runInTransaction {
             dao.insert(data)
         }
     }
 
-    override fun update(data: Entity) {
+    fun update(data: Entity) {
         getRoomDatabase().runInTransaction {
             dao.update(data)
         }
     }
 
-    override fun update(data: List<Entity>) {
+    fun update(data: List<Entity>) {
         getRoomDatabase().runInTransaction {
             dao.update(data)
         }
     }
 
-    override fun delete(data: Entity) {
+    fun delete(data: Entity) {
         getRoomDatabase().runInTransaction {
             dao.delete(data)
         }
     }
 
-    override fun delete(data: List<Entity>) {
+    fun delete(data: List<Entity>) {
         getRoomDatabase().runInTransaction {
             dao.delete(data)
         }
@@ -145,8 +132,26 @@ abstract class DatabaseViewModel<Entity, DAO : BaseDao<Entity>> : AndroidViewMod
             }
         }
 
-    fun invalidate() {
-        dataSource.invalidate()
+    init {
+        dao = getDao()
+        val config = PagedList.Config.Builder()
+            .setPageSize(setPageSize())
+            .setPrefetchDistance(setPrefetchDistance())
+            .setInitialLoadSizeHint(setInitialLoadSizeHint())
+            .setEnablePlaceholders(setEnablePlaceholders())
+        this.dataObserve = LivePagedListBuilder(
+            queryData(), config.build()
+        ).setBoundaryCallback(dataBoundaryCallback)
+            .build()
+    }
+
+    fun databaseObserve(
+        lifecycleOwner: LifecycleOwner,
+        action: (PagedList<Entity>) -> Unit
+    ) {
+        dataObserve.observe(lifecycleOwner, Observer {
+            action(it)
+        })
     }
 
 }
